@@ -1,12 +1,12 @@
 import { Router } from 'express';
 const router = Router();
 import clienteController from '../controllers/clienteController';
-import { validateCreateCliente, validateUpdateCliente } from '../middleware/validationMiddleware';
+import { validateCreateCliente, validateUpdateCliente } from '../controllers/middleware/validationMiddleware';
 
 /**
  * @swagger
  * tags:
- *   name: Clientes
+ *   name: Cliente
  *   description: Gerenciamento de clientes
  */
 
@@ -15,7 +15,7 @@ import { validateCreateCliente, validateUpdateCliente } from '../middleware/vali
  * /clientes:
  *   get:
  *     summary: Retorna uma lista de clientes
- *     tags: [Clientes]
+ *     tags: [Cliente]
  *     parameters:
  *       - in: query
  *         name: nome
@@ -60,10 +60,10 @@ router.get('/clientes', clienteController.getClientes);
 
 /**
  * @swagger
- * /clientes/{id}:
+ * /cliente/{id}:
  *   get:
  *     summary: Retorna um cliente pelo ID
- *     tags: [Clientes]
+ *     tags: [Cliente]
  *     parameters:
  *       - in: path
  *         name: id
@@ -83,14 +83,14 @@ router.get('/clientes', clienteController.getClientes);
  *       500:
  *         description: Erro ao buscar cliente
  */
-router.get('/clientes/:id', clienteController.getClienteById);
+router.get('/cliente/:id', clienteController.getClienteById);
 
 /**
  * @swagger
- * /clientes:
+ * /cliente:
  *   post:
  *     summary: Cria um novo cliente
- *     tags: [Clientes]
+ *     tags: [Cliente]
  *     requestBody:
  *       required: true
  *       content:
@@ -100,19 +100,23 @@ router.get('/clientes/:id', clienteController.getClienteById);
  *     responses:
  *       201:
  *         description: Cliente criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
  *       400:
  *         description: Erro de validação
  *       500:
  *         description: Erro ao criar cliente
  */
-router.post('/clientes', validateCreateCliente, clienteController.createCliente);
+router.post('/cliente', validateCreateCliente, clienteController.createCliente);
 
 /**
  * @swagger
- * /clientes/{id}:
+ * /cliente/{id}:
  *   put:
  *     summary: Atualiza um cliente existente
- *     tags: [Clientes]
+ *     tags: [Cliente]
  *     parameters:
  *       - in: path
  *         name: id
@@ -129,19 +133,23 @@ router.post('/clientes', validateCreateCliente, clienteController.createCliente)
  *     responses:
  *       200:
  *         description: Cliente atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
  *       400:
  *         description: Erro de validação
  *       500:
  *         description: Erro ao atualizar cliente
  */
-router.put('/clientes/:id', validateUpdateCliente, clienteController.updateCliente);
+router.put('/cliente/:id', validateUpdateCliente, clienteController.updateCliente);
 
 /**
  * @swagger
- * /clientes/{id}:
+ * /cliente/{id}:
  *   delete:
  *     summary: Deleta um cliente pelo ID
- *     tags: [Clientes]
+ *     tags: [Cliente]
  *     parameters:
  *       - in: path
  *         name: id
@@ -159,7 +167,7 @@ router.put('/clientes/:id', validateUpdateCliente, clienteController.updateClien
  *       500:
  *         description: Erro ao deletar cliente
  */
-router.delete('/clientes/:id', clienteController.deleteCliente);
+router.delete('/cliente/:id', clienteController.deleteCliente);
 
 export default router;
 export { router };

@@ -20,7 +20,7 @@ const clienteController = {
     }
   },
 
-  async getClienteById(req: Request, res: Response<Cliente | { message: string }>) {
+  async getClienteById(req: Request<{id: string},{},{}>, res: Response<Cliente | { message: string }>) {
     try {
       const { id } = req.params;
       const cliente: Cliente | null = await clienteService.getClienteById(Number(id));
@@ -34,22 +34,30 @@ const clienteController = {
     }
   },
 
-  async createCliente(req: Request<{}, {}, CreateClienteDTO>, res: Response<{ message: string }>) {
+  async createCliente(req: Request<{}, {}, CreateClienteDTO>, res: Response<Cliente | { message: string }>) {
     try {
       const { nome, apelido } = req.body;
-      await clienteService.createCliente({ nome, apelido });
-      res.status(201).json({ message: 'Cliente criado com sucesso' });
+      const cliente: Cliente | null = await clienteService.createCliente({ nome, apelido });
+      if (cliente) {
+        res.status(201).json(cliente);
+      } else {
+        res.status(500).json({ message: 'Erro ao criar cliente' });
+      }
     } catch (error) {
       res.status(500).json({ message: `Erro ao criar cliente ${error}` });
     }
   },
 
-  async updateCliente(req: Request<{ id: string }, {}, UpdateClienteDTO>, res: Response<{ message: string }>) {
+  async updateCliente(req: Request<{ id: string }, {}, UpdateClienteDTO>, res: Response<Cliente | { message: string }>) {
     try {
       const { id } = req.params;
       const { nome, apelido } = req.body;
-      await clienteService.updateCliente(Number(id), { nome, apelido });
-      res.json({ message: 'Cliente atualizado com sucesso' });
+      const cliente = await clienteService.updateCliente(Number(id), { nome, apelido });
+      if (cliente) {
+        res.status(200).json(cliente);
+      } else {
+        res.status(404).json({ message: 'Cliente não encontrado' });
+      }
     } catch (error) {
       res.status(500).json({ message: 'Erro ao atualizar cliente' });
     }

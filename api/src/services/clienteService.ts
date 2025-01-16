@@ -14,12 +14,24 @@ const clienteService = {
     return await clienteRepository.getClienteById(id);
   },
 
-  async createCliente(cliente: CreateClienteDTO): Promise<void> {
-    await clienteRepository.createCliente(cliente);
+  async createCliente(cliente: CreateClienteDTO): Promise<Cliente | null> {
+    const id = await clienteRepository.createCliente(cliente);
+    return await clienteRepository.getClienteById(id);
   },
 
-  async updateCliente(id: number, cliente: UpdateClienteDTO): Promise<void> {
-    await clienteRepository.updateCliente(id, cliente);
+  async updateCliente(id: number, cliente: UpdateClienteDTO): Promise<Cliente | null> {
+    const existingCliente = await clienteRepository.getClienteById(id);
+    if (!existingCliente) {
+      throw new Error('Cliente não encontrado');
+    }
+
+    const updatedCliente: UpdateClienteDTO = {
+      ...existingCliente,
+      ...cliente,
+    };
+
+    await clienteRepository.updateCliente(id, updatedCliente);
+    return await clienteRepository.getClienteById(id);
   },
 
   async deleteCliente(id: number): Promise<void> {

@@ -4,66 +4,84 @@ import Cliente from '../models/clienteModel';
 
 const clienteRepository = {
   async getClientes(filters: { nome?: string, apelido?: string, id?: number, status_pagamento?: string, limit: number, offset: number }): Promise<Cliente[]> {
-    const { nome, apelido, id, status_pagamento, limit, offset } = filters;
-    let query = 'SELECT id, nome, apelido, data_cadastro, data_atualizacao FROM cliente';
-    const conditions: string[] = [];
-    const params: any[] = [];
+    try {
+      const { nome, apelido, id, status_pagamento, limit, offset } = filters;
+      let query = 'SELECT id, nome, apelido, data_cadastro, data_atualizacao FROM cliente';
+      const conditions: string[] = [];
+      const params: any[] = [];
 
-    if (nome) {
-      conditions.push('nome LIKE ?');
-      params.push(`%${nome}%`);
-    }
-    if (apelido) {
-      conditions.push('apelido LIKE ?');
-      params.push(`%${apelido}%`);
-    }
-    if (id) {
-      conditions.push('id = ?');
-      params.push(id);
-    }
-    if (status_pagamento) {
-      conditions.push('EXISTS (SELECT 1 FROM vendas WHERE vendas.cliente_id = cliente.id AND vendas.status_pagamento = ?)');
-      params.push(status_pagamento);
-    }
+      if (nome) {
+        conditions.push('nome LIKE ?');
+        params.push(`%${nome}%`);
+      }
+      if (apelido) {
+        conditions.push('apelido LIKE ?');
+        params.push(`%${apelido}%`);
+      }
+      if (id) {
+        conditions.push('id = ?');
+        params.push(id);
+      }
+      if (status_pagamento) {
+        conditions.push('EXISTS (SELECT 1 FROM vendas WHERE vendas.cliente_id = cliente.id AND vendas.status_pagamento = ?)');
+        params.push(status_pagamento);
+      }
 
-    if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+      }
+
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+
+      const [rows] = await pool.query(query, params);
+      return rows as Cliente[];
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      throw new Error('Error fetching clients');
     }
-
-    query += ' LIMIT ? OFFSET ?';
-    params.push(limit, offset);
-
-    const [rows] = await pool.query(query, params);
-    return rows as Cliente[];
   },
 
   async getClienteById(id: number): Promise<Cliente | null> {
-    const [rows] = await pool.query('SELECT * FROM cliente WHERE id = ?', [id]);
-    const clientes = rows as Cliente[];
-    return clientes.length > 0 ? clientes[0] : null;
+    try {
+      const [rows] = await pool.query('SELECT * FROM cliente WHERE id = ?', [id]);
+      const clientes = rows as Cliente[];
+      return clientes.length > 0 ? clientes[0] : null;
+    } catch (error) {
+      console.error(`Error fetching client with id ${id}:`, error);
+      throw new Error('Error fetching client');
+    }
   },
 
-  async createCliente(cliente: CreateClienteDTO): Promise<void> {
-    const { nome, apelido } = cliente;
-    await pool.query('INSERT INTO cliente (nome, apelido) VALUES (?, ?)', [nome, apelido]);
+  async createCliente(cliente: CreateClienteDTO): Promise<number> {
+    try {
+      const { nome, apelido } = cliente;
+      const [result] = await pool.query('INSERT INTO cliente (nome, apelido) VALUES (?, ?)', [nome, apelido]);
+      const insertId = (result as any).insertId;
+      return insertId;
+    } catch (error) {
+      console.error('Error creating client:', error);
+      throw new Error('Error creating client');
+    }
   },
 
   async updateCliente(id: number, cliente: UpdateClienteDTO): Promise<void> {
-    const { nome, apelido } = cliente;
-    if (!nome && !apelido) {
-      throw new Error('Nome ou apelido deve ser fornecido');
-    }
-    if (nome && apelido) {
+    try {
+      const { nome, apelido } = cliente;
       await pool.query('UPDATE cliente SET nome = ?, apelido = ? WHERE id = ?', [nome, apelido, id]);
-    } else if (nome) {
-      await pool.query('UPDATE cliente SET nome = ? WHERE id = ?', [nome, id]);
-    } else if (apelido) {
-      await pool.query('UPDATE cliente SET apelido = ? WHERE id = ?', [apelido, id]);
+    } catch (error) {
+      console.error(`Error updating client with id ${id}:`, error);
+      throw new Error('Error updating client');
     }
   },
 
   async deleteCliente(id: number): Promise<void> {
-    await pool.query('DELETE FROM cliente WHERE id = ?', [id]);
+    try {
+      await pool.query('DELETE FROM cliente WHERE id = ?', [id]);
+    } catch (error) {
+      console.error(`Error deleting client with id ${id}:`, error);
+      throw new Error('Error deleting client');
+    }
   }
 };
 

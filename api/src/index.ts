@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import pool from './repository/db';
 import clienteRoutes from './routes/clienteRoutes';
+import produtoRoutes from './routes/produtoRoutes';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
@@ -35,7 +36,7 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-app.use('/api', clienteRoutes);
+app.use('/api', [clienteRoutes, produtoRoutes]);
 
 // Tratamento de erros
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
