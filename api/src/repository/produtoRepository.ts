@@ -5,9 +5,10 @@ import pool from './db';
 const produtoRepository = {
   async getProdutoById(id: number): Promise<Omit<Produto, 'imagem'> | null> {
     try {
-      const [result] = await pool.query('SELECT id, produto_codigo, nome, descricao, preco, categoria, data_cadastro FROM produto WHERE id = ?', [id]);
-      const produtos = result as Omit<Produto, 'imagem'>[];
-      return produtos.length > 0 ? produtos[0] : null;
+      const [result] = await pool.query('SELECT p.id, p.produto_codigo, p.nome, p.descricao, p.preco, p.categoria, p.data_cadastro, COALESCE(SUM(e.quantidade_disponivel), 0) AS total_disponivel FROM produto p LEFT JOIN estoque e ON p.id = e.produto_id WHERE p.id = ?', [id]);
+
+      const produto = result as Omit<Produto, 'imagem'>[];
+      return produto[0].id ? produto[0] : null;
     } catch (error) {
       console.error(`Error fetching produto with id ${id}:`, error);
       throw new Error('Error fetching produto');
@@ -30,9 +31,10 @@ const produtoRepository = {
       throw new Error('Error updating produto');
     }
   },
-  async deleteProduto(id: number): Promise<void> {
+  async deleteProduto(id: number): Promise<boolean> {
     try {
-      await pool.query('DELETE FROM produto WHERE id = ?', [id]);
+      const [result] = await pool.query('DELETE FROM produto WHERE id = ?', [id]);
+      return (result as any).affectedRows > 0;
     } catch (error) {
       console.error(`Error deleting produto with id ${id}:`, error);
       throw new Error('Error deleting produto');
@@ -48,9 +50,9 @@ const produtoRepository = {
       throw new Error('Error fetching imagem');
     }
   },
-  async getTotalProdutos(query: { id?: number, produto_codigo?: string, nome?: string, preco?: number, categoria?: string }): Promise<number> {
+  async getTotalProdutos(query: { id?: number, produto_codigo?: string, nome?: string, preco?: number, categoria?: string, }): Promise<number> {
     try {
-      let sql = 'SELECT COUNT(*) as total FROM produto WHERE 1=1';
+      let sql = 'SELECT COUNT(id) as total FROM produto WHERE 1=1';
       const params: any[] = [];
 
       if (query.id) {
@@ -82,9 +84,9 @@ const produtoRepository = {
       throw new Error('Error fetching total produtos');
     }
   },
-  async getProdutos(query: { id?: number, produto_codigo?: string, nome?: string, preco?: number, categoria?: string, pagina?: number, preco_ordenado?: number }): Promise<(Omit<Produto, 'imagem'> & { total_disponivel: number })[]> {
+  async getProdutos(query: { id?: number, produto_codigo?: string, nome?: string, preco?: number, categoria?: string, pagina?: number, preco_ordenado?: number, esgotado?: boolean  }): Promise<Omit<Produto, 'imagem'>[]> {
     try {
-      const { id, produto_codigo, nome, preco, categoria, pagina = 1, preco_ordenado } = query;
+      const { id, produto_codigo, nome, preco, categoria, pagina = 1, preco_ordenado, esgotado = false} = query;
       const offset = (pagina - 1) * 10;
       
       let sql = `
@@ -117,6 +119,9 @@ const produtoRepository = {
         params.push(categoria);
       }
       sql += ' GROUP BY p.id';
+      if (esgotado) {
+        sql += ' HAVING total_disponivel = 0';
+      }
       if (preco_ordenado == 1) {
         sql += ' ORDER BY p.preco ASC';
       } else if (preco_ordenado == -1) {
@@ -129,7 +134,7 @@ const produtoRepository = {
       params.push(offset);
 
       const [result] = await pool.query(sql, params);
-      return result as (Omit<Produto, 'imagem'> & { total_disponivel: number })[];
+      return result as Omit<Produto, 'imagem'>[];
     } catch (error) {
       console.error('Error fetching produtos:', error);
       throw new Error('Error fetching produtos');

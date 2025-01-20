@@ -75,9 +75,10 @@ const clienteRepository = {
     }
   },
 
-  async deleteCliente(id: number): Promise<void> {
+  async deleteCliente(id: number): Promise<boolean> {
     try {
-      await pool.query('DELETE FROM cliente WHERE id = ?', [id]);
+      const [result] = await pool.query('DELETE FROM cliente WHERE id = ?', [id]);
+      return (result as any).affectedRows > 0;
     } catch (error) {
       console.error(`Error deleting client with id ${id}:`, error);
       throw new Error('Error deleting client');

@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
     "start": "node dist/index.js",
+    "build": "tsc && npm run copy-dump",
+    "copy-dump": "cp ./src/repository/dump.sql ./dist/repository/dump.sql",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch dist dist/index.js\""
   },
   "dependencies": {

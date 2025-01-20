@@ -34,12 +34,12 @@ const clienteService = {
     return await clienteRepository.getClienteById(id);
   },
 
-  async deleteCliente(id: number): Promise<void> {
+  async deleteCliente(id: number): Promise<boolean> {
     const cliente = await clienteService.getClienteById(id);
     if (!cliente) {
       throw new Error('Cliente não encontrado');
     }
-    await clienteRepository.deleteCliente(id);
+    return await clienteRepository.deleteCliente(id);
   }
 };
 

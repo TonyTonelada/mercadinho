@@ -66,17 +66,14 @@ const clienteController = {
   async deleteCliente(req: Request<{ id: string }>, res: Response<{ message: string }>) {
     try {
       const { id } = req.params;
-      if (!id) {
-        return res.status(400).json({ message: 'ID do cliente não fornecido' });
-      }
-      await clienteService.deleteCliente(Number(id));
-      res.json({ message: 'Cliente deletado com sucesso' });
-    } catch (error) {
-      if ((error as Error).message === 'Cliente não encontrado') {
-        res.status(404).json({ message: (error as Error).message });
+      const ok = await clienteService.deleteCliente(Number(id));
+      if (ok) {
+        res.json({ message: 'Cliente deletado com sucesso' });
       } else {
-        res.status(500).json({ message: 'Erro ao deletar cliente' });
+        res.status(404).json({ message: 'Cliente não encontrado' });
       }
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao deletar cliente' });
     }
   }
 };

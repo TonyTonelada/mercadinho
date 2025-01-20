@@ -50,12 +50,12 @@ const produtoController = {
   async deleteProduto(req: Request<{ id: string }>, res: Response<{ message: string }>) {
     const id = parseInt(req.params.id, 10);
     try {
-      await produtoService.deleteProduto(id);
-      return res.json({ message: 'Produto deletado com sucesso' });
-    } catch (error: any) {
-      if (error.message === 'Produto não encontrado') {
-        return res.status(404).json({ message: error.message });
+      const ok = await produtoService.deleteProduto(id);
+      if (ok) {
+        return res.json({ message: 'Produto deletado com sucesso' });
       }
+      return res.status(404).json({ message: 'Produto não encontrado' });
+    } catch (error: any) {
       return res.status(500).json({ message: error.message });
     }
   },

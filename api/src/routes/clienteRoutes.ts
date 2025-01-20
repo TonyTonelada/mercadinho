@@ -12,7 +12,7 @@ import { validateCreateCliente, validateUpdateCliente } from '../controllers/mid
 
 /**
  * @swagger
- * /clientes:
+ * /api/cliente:
  *   get:
  *     summary: Retorna uma lista de clientes
  *     tags: [Cliente]
@@ -56,11 +56,11 @@ import { validateCreateCliente, validateUpdateCliente } from '../controllers/mid
  *       500:
  *         description: Erro ao buscar clientes
  */
-router.get('/clientes', clienteController.getClientes);
+router.get('/cliente', clienteController.getClientes);
 
 /**
  * @swagger
- * /cliente/{id}:
+ * /api/cliente/{id}:
  *   get:
  *     summary: Retorna um cliente pelo ID
  *     tags: [Cliente]
@@ -87,7 +87,7 @@ router.get('/cliente/:id', clienteController.getClienteById);
 
 /**
  * @swagger
- * /cliente:
+ * /api/cliente:
  *   post:
  *     summary: Cria um novo cliente
  *     tags: [Cliente]
@@ -96,7 +96,16 @@ router.get('/cliente/:id', clienteController.getClienteById);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CreateClienteDTO'
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 description: Nome do cliente
+ *               apelido:
+ *                 type: string
+ *                 description: Apelido do cliente
+ *             required:
+ *               - nome
  *     responses:
  *       201:
  *         description: Cliente criado com sucesso
@@ -113,8 +122,8 @@ router.post('/cliente', validateCreateCliente, clienteController.createCliente);
 
 /**
  * @swagger
- * /cliente/{id}:
- *   put:
+ * /api/cliente/{id}:
+ *   patch:
  *     summary: Atualiza um cliente existente
  *     tags: [Cliente]
  *     parameters:
@@ -142,11 +151,11 @@ router.post('/cliente', validateCreateCliente, clienteController.createCliente);
  *       500:
  *         description: Erro ao atualizar cliente
  */
-router.put('/cliente/:id', validateUpdateCliente, clienteController.updateCliente);
+router.patch('/cliente/:id', validateUpdateCliente, clienteController.updateCliente);
 
 /**
  * @swagger
- * /cliente/{id}:
+ * /api/cliente/{id}:
  *   delete:
  *     summary: Deleta um cliente pelo ID
  *     tags: [Cliente]

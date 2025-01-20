@@ -24,24 +24,25 @@ const produtoService = {
     await produtoRepository.updateProduto(id, updatedProdutoDTO);
     return await produtoRepository.getProdutoById(id);
   },
-  async deleteProduto(id: number): Promise<void> {
+  async deleteProduto(id: number): Promise<boolean> {
     const produto = await produtoService.getProdutoById(id);
     if (!produto) {
       throw new Error('Produto não encontrado');
     }
-    await produtoRepository.deleteProduto(id);
+    return await produtoRepository.deleteProduto(id);
+    ;
   },
   async getImagemProduto(id: number): Promise<Buffer | null> {
     return await produtoRepository.getImagemProduto(id);
   },
-  async getProdutos(query: { id?: number, produto_codigo?: string, nome?: string, preco?: number, categoria?: string, pagina?: number, preco_ordenado?: number }): Promise<PaginatedResponseProdutoDTO> {
+  async getProdutos(query: { id?: number, produto_codigo?: string, nome?: string, preco?: number, categoria?: string, pagina?: number, preco_ordenado?: number, esgotado?: boolean }): Promise<PaginatedResponseProdutoDTO> {
     const produtos = await produtoRepository.getProdutos(query);
     const totalProdutos = await produtoRepository.getTotalProdutos(query);
-    const totalPaginas = Math.ceil(totalProdutos / 10);
+    const total_paginas = Math.ceil(totalProdutos / 10);
     const paginatedResponse: PaginatedResponseProdutoDTO = {
-      produtos: produtos as Produto[],
-      totalPaginas,
-      paginaAtual: query.pagina || 1,
+      produtos,
+      total_paginas,
+      pagina_atual: query.pagina || 1,
     };
     return paginatedResponse;
   }
