@@ -14,8 +14,8 @@ const estoqueRepository = {
             throw new Error('Error fetching estoque by id');
         }     
     },
-    async createEstoque(estoque: CreateEstoqueDTO): Promise<number> {
-        const { produto_id, quantidade, valor_total, data_validade } = estoque;
+    async createEstoque(produto_id: number, estoque: CreateEstoqueDTO): Promise<number> {
+        const { quantidade, valor_total, data_validade } = estoque;
         try {
             const [result] = await pool.query('INSERT INTO estoque (produto_id, quantidade, quantidade_disponivel, valor_total, data_validade) VALUES (?, ?, ?, ?, ?)', [produto_id, quantidade, quantidade, valor_total, data_validade]);
             const insertId = (result as any).insertId;
@@ -38,9 +38,13 @@ const estoqueRepository = {
         try {
             const [result] = await pool.query('DELETE FROM estoque WHERE id = ?', [id]);
             return (result as any).affectedRows > 0;
-        } catch (error) {
-            console.error('Error deleting estoque:', error);
-            throw new Error('Error deleting estoque');
+        } catch (error: any) {
+            if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+                console.error('Não é possível excluir o estoque, ele está referenciado por outro registro:', error);
+                throw new Error('Não é possível excluir o estoque, ele está referenciado por outro registro');
+            }
+            console.error('Erro ao excluir o estoque:', error);
+            throw new Error('Erro ao excluir o estoque');
         }
     },
     async getEstoques(query: { produto_id?: number, mostrar_quantidade_vazio?: boolean, pagina?: number }): Promise<Estoque[]> {

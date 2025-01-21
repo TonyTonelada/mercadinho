@@ -48,15 +48,21 @@ const produtoController = {
     }
   },
   async deleteProduto(req: Request<{ id: string }>, res: Response<{ message: string }>) {
-    const id = parseInt(req.params.id, 10);
     try {
-      const ok = await produtoService.deleteProduto(id);
-      if (ok) {
-        return res.json({ message: 'Produto deletado com sucesso' });
+      const { id } = req.params;
+      const deleted = await produtoService.deleteProduto(Number(id));
+      if (deleted) {
+        return res.status(200).json({ message: 'Produto deletado com sucesso' });
+      } else {
+        return res.status(404).json({ message: 'Produto não encontrado' });
       }
-      return res.status(404).json({ message: 'Produto não encontrado' });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
+    } catch (error) {
+      if ((error as Error).message === 'Produto possui estoques associados') {
+        return res.status(400).json({ message: (error as Error).message });
+      }else if ((error as Error).message === 'Produto não encontrado') {
+        return res.status(404).json({ message: (error as Error).message });
+      }
+      return res.status(500).json({ message: 'Erro ao deletar produto' });
     }
   },
   async getImagemProduto(req: Request<{ id: string }>, res: Response) {

@@ -21,8 +21,13 @@ const clienteService = {
 
   async updateCliente(id: number, cliente: UpdateClienteDTO): Promise<Cliente | null> {
     const existingCliente = await clienteRepository.getClienteById(id);
+
     if (!existingCliente) {
       throw new Error('Cliente não encontrado');
+    }
+
+    if(existingCliente.id == 1) {
+      throw new Error('Não é possível alterar o cliente padrão');
     }
 
     const updatedCliente: UpdateClienteDTO = {
@@ -37,8 +42,13 @@ const clienteService = {
   async deleteCliente(id: number): Promise<boolean> {
     const cliente = await clienteService.getClienteById(id);
     if (!cliente) {
-      throw new Error('Cliente não encontrado');
+      return false;
     }
+
+    if (cliente.id === 1) {
+      throw new Error('Não é possível deletar o cliente padrão');
+    }
+
     return await clienteRepository.deleteCliente(id);
   }
 };

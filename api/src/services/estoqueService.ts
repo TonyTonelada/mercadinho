@@ -7,12 +7,12 @@ export const estoqueService = {
     async getEstoqueById(id: number): Promise<Estoque | null> {
         return await estoqueRepository.getEstoqueById(id);
     },
-    async createEstoque(estoque: CreateEstoqueDTO): Promise<Estoque | null> {
-        const produto = await produtoService.getProdutoById(estoque.produto_id);
+    async createEstoque(produto_id: number, estoque: CreateEstoqueDTO): Promise<Estoque | null> {
+        const produto = await produtoService.getProdutoById(produto_id);
         if (!produto) {
             throw new Error('Produto não encontrado');
         }
-        const id = await estoqueRepository.createEstoque(estoque);
+        const id = await estoqueRepository.createEstoque(produto_id, estoque);
         const createdEstoque = await estoqueRepository.getEstoqueById(id);
         return createdEstoque;
     },

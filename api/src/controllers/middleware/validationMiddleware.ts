@@ -26,7 +26,6 @@ const updateProdutoSchema = z.object({
 });
 
 const createEstoqueSchema = z.object({
-  produto_id: z.number().int().positive('ID do produto deve ser um número inteiro positivo'),
   quantidade: z.number().int().positive('Quantidade deve ser um número inteiro positivo'),
   valor_total: z.number().positive('Valor total deve ser um número positivo'),
   data_validade: z.string().refine((data) => {
@@ -104,6 +103,7 @@ export const validateUpdateProduto = (req: Request, res: Response, next: NextFun
 
 export const validateCreateEstoque = (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log(req.body);
     createEstoqueSchema.parse(req.body);
     next();
   } catch (error) {

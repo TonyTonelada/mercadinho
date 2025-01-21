@@ -7,8 +7,6 @@ import Estoque from "../models/estoqueModel";
  *     CreateEstoqueDTO:
  *       type: object
  *       properties:
- *         produto_id:
- *           type: integer
  *         quantidade:
  *           type: integer
  *         valor_total:
@@ -42,7 +40,6 @@ import Estoque from "../models/estoqueModel";
  */
 
 export interface CreateEstoqueDTO {
-  produto_id: number;
   quantidade: number;
   valor_total: number;
   data_validade: Date;

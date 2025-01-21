@@ -36,8 +36,13 @@ const produtoRepository = {
       const [result] = await pool.query('DELETE FROM produto WHERE id = ?', [id]);
       return (result as any).affectedRows > 0;
     } catch (error) {
-      console.error(`Error deleting produto with id ${id}:`, error);
-      throw new Error('Error deleting produto');
+      if ((error as any).code === 'ER_ROW_IS_REFERENCED_2') {
+        // console.error(`Produto com id ${id} possui estoques associados:`, error);
+        throw new Error('Produto possui estoques associados');
+      } else {
+        console.error(`Error deleting produto with id ${id}:`, error);
+        throw new Error('Error deleting produto');
+      }
     }
   },
   async getImagemProduto(id: number): Promise<Buffer | null> {

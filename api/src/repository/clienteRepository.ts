@@ -80,8 +80,13 @@ const clienteRepository = {
       const [result] = await pool.query('DELETE FROM cliente WHERE id = ?', [id]);
       return (result as any).affectedRows > 0;
     } catch (error) {
-      console.error(`Error deleting client with id ${id}:`, error);
-      throw new Error('Error deleting client');
+      if ((error as any).code === 'ER_ROW_IS_REFERENCED_2') {
+        // console.error(`Cliente com id ${id} possui vendas associadas:`, error);
+        throw new Error('Cliente possui vendas associadas');
+      } else {
+        console.error(`Error deleting client with id ${id}:`, error);
+        throw new Error('Error deleting client');
+      }
     }
   }
 };

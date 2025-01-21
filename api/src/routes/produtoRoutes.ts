@@ -131,6 +131,8 @@ router.patch('/produto/:id', upload.single('imagem'), validateUpdateProduto, pro
  *         description: Produto não encontrado
  *       500:
  *         description: Erro no servidor
+ *       400:
+ *         description: Produto possui estoques associados
  */
 router.delete('/produto/:id', produtoController.deleteProduto);
 

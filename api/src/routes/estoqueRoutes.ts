@@ -12,7 +12,7 @@ import { validateCreateEstoque, validateUpdateEstoque } from '../controllers/mid
 
 /**
  * @swagger
- * /estoque/{id}:
+ * /api/produto/estoque/{id}:
  *   get:
  *     tags: [Estoque]
  *     summary: Obter estoque por ID
@@ -33,14 +33,21 @@ import { validateCreateEstoque, validateUpdateEstoque } from '../controllers/mid
  *       404:
  *         description: Estoque não encontrado
  */
-router.get('/estoque/:id', estoqueController.getEstoqueById);
+router.get('/produto/estoque/:id', estoqueController.getEstoqueById);
 
 /**
  * @swagger
- * /estoque:
+ * /api/produto/{id}/estoque:
  *   post:
  *     tags: [Estoque]
  *     summary: Criar um novo estoque
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do produto
  *     requestBody:
  *       required: true
  *       content:
@@ -57,11 +64,11 @@ router.get('/estoque/:id', estoqueController.getEstoqueById);
  *       404:
  *         description: Produto não encontrado
  */
-router.post('/estoque', validateCreateEstoque, estoqueController.createEstoque);
+router.post('/produto/:id/estoque', validateCreateEstoque, estoqueController.createEstoque);
 
 /**
  * @swagger
- * /estoque/{id}:
+ * /api/produto/estoque/{id}:
  *   patch:
  *     tags: [Estoque]
  *     summary: Atualizar um estoque existente
@@ -88,11 +95,11 @@ router.post('/estoque', validateCreateEstoque, estoqueController.createEstoque);
  *       404:
  *         description: Estoque não encontrado
  */
-router.patch('/estoque/:id', validateUpdateEstoque, estoqueController.updateEstoque);
+router.patch('/produto/estoque/:id', validateUpdateEstoque, estoqueController.updateEstoque);
 
 /**
  * @swagger
- * /estoque/{id}:
+ * /api/produto/estoque/{id}:
  *   delete:
  *     tags: [Estoque]
  *     summary: Deletar um estoque
@@ -108,12 +115,14 @@ router.patch('/estoque/:id', validateUpdateEstoque, estoqueController.updateEsto
  *         description: Estoque deletado com sucesso
  *       404:
  *         description: Estoque não encontrado
+ *       400:
+ *         description: Não é possível excluir o estoque, ele está referenciado por outro registro
  */
-router.delete('/estoque/:id', estoqueController.deleteEstoque);
+router.delete('/produto/estoque/:id', estoqueController.deleteEstoque);
 
 /**
  * @swagger
- * /estoque:
+ * /api/produto/estoque:
  *   get:
  *     tags: [Estoque]
  *     summary: Obter lista de estoques
@@ -141,6 +150,6 @@ router.delete('/estoque/:id', estoqueController.deleteEstoque);
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponseEstoqueDTO'
  */
-router.get('/estoque', estoqueController.getEstoques);
+router.get('/produto/estoque', estoqueController.getEstoques);
 
 export default router;

@@ -170,7 +170,7 @@ router.patch('/cliente/:id', validateUpdateCliente, clienteController.updateClie
  *       200:
  *         description: Cliente deletado com sucesso
  *       400:
- *         description: ID do cliente não fornecido
+ *         description: Cliente possui vendas associadas ou é o cliente padrão
  *       404:
  *         description: Cliente não encontrado
  *       500:

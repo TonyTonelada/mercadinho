@@ -66,16 +66,19 @@ const clienteController = {
   async deleteCliente(req: Request<{ id: string }>, res: Response<{ message: string }>) {
     try {
       const { id } = req.params;
-      const ok = await clienteService.deleteCliente(Number(id));
-      if (ok) {
-        res.json({ message: 'Cliente deletado com sucesso' });
+      const deleted = await clienteService.deleteCliente(Number(id));
+      if (deleted) {
+        return res.status(200).json({ message: 'Cliente deletado com sucesso' });
       } else {
-        res.status(404).json({ message: 'Cliente não encontrado' });
+        return res.status(404).json({ message: 'Cliente não encontrado' });
       }
     } catch (error) {
-      res.status(500).json({ message: 'Erro ao deletar cliente' });
+      // console.error('Erro ao deletar cliente:', error);
+      if ((error as Error).message === 'Cliente possui vendas associadas' || (error as Error).message === 'Não é possível deletar o cliente padrão') {
+        return res.status(400).json({ message: (error as Error).message });
+      }
+      return res.status(500).json({ message: 'Erro ao deletar cliente' });
     }
-  }
+  },
 };
-
 export default clienteController;

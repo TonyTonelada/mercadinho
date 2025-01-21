@@ -2,7 +2,6 @@ import  {Request, Response}  from 'express';
 import estoqueService from '../services/estoqueService';
 import  Estoque  from '../models/estoqueModel';
 import { CreateEstoqueDTO, PaginatedResponseEstoqueDTO, UpdateEstoqueDTO } from '../dto/estoqueDTO';
-import { create } from 'domain';
 
 const estoqueController = {
     async getEstoqueById(req: Request<{ id: string }>, res: Response<Estoque | { message: string }>) {
@@ -17,10 +16,11 @@ const estoqueController = {
             return res.status(500).json({ message: error.message });
         }
     },
-    async createEstoque(req: Request<{}, {}, CreateEstoqueDTO>, res: Response<Estoque | { message: string }>) {
+    async createEstoque(req: Request<{ id: string }, {}, CreateEstoqueDTO>, res: Response<Estoque | { message: string }>) {
         try {
-            const estoqueDTO: CreateEstoqueDTO = req.body;
-            const estoque: Estoque | null = await estoqueService.createEstoque(estoqueDTO);
+            const produto_id = parseInt(req.params.id, 10);
+            const estoqueDTO: CreateEstoqueDTO = { ...req.body};
+            const estoque: Estoque | null = await estoqueService.createEstoque(produto_id, estoqueDTO);
             if (!estoque) {
                 return res.status(500).json({ message: 'Erro ao criar estoque' });
             }
@@ -59,6 +59,8 @@ const estoqueController = {
         } catch (error: any) {
             if (error.message === 'Estoque não encontrado') {
                 return res.status(404).json({ message: error.message });
+            }else if (error.message === 'Não é possível excluir o estoque, ele está referenciado por outro registro') {
+                return res.status(400).json({ message: error.message });
             }
             return res.status(500).json({ message: error.message });
         }
